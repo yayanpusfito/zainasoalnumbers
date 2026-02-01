@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Numbers Quiz</title>
+
+<style>
+body{
+  font-family:"Comic Sans MS",cursive;
+  background:linear-gradient(#c8e6c9,#ffffff);
+  margin:0;
+}
+
+.container{
+  max-width:500px;
+  margin:auto;
+  background:#fff;
+  padding:15px;
+  border-radius:20px;
+  margin-top:15px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+
+.header-img{text-align:center;}
+.header-img img{width:160px;}
+
+h1{
+  text-align:center;
+  color:#2e7d32;
+}
+
+.timer{
+  text-align:center;
+  color:red;
+  font-size:18px;
+}
+
+.number{
+  text-align:center;
+  font-weight:bold;
+  margin-top:5px;
+  color:#1565c0;
+}
+
+.question{
+  text-align:center;
+  font-size:20px;
+  margin:15px 0;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  margin:8px 0;
+  font-size:18px;
+  border-radius:15px;
+  border:none;
+  cursor:pointer;
+}
+
+.option{background:#4caf50;color:white;}
+.correct{background:#2e7d32;color:white;}
+.wrong{background:#c62828;color:white;}
+
+.coin{
+  position:fixed;
+  top:-40px;
+  font-size:24px;
+  animation:fall 2s linear forwards;
+}
+
+@keyframes fall{
+  to{transform:translateY(100vh);opacity:0;}
+}
+
+#result{
+  text-align:center;
+  font-size:18px;
+  margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header-img">
+  <img src="zaina.png" alt="School Islamic">
+</div>
+
+<h1>🔢 ENGLISH NUMBERS QUIZ 🔢</h1>
+
+<div class="timer">⏱ Time: <span id="time">30:00</span></div>
+<div class="number" id="number"></div>
+
+<div class="question" id="question"></div>
+<div id="options"></div>
+<div id="result"></div>
+
+</div>
+
+<audio id="clap" src="benar.mp3"></audio>
+<audio id="wrongSound" src="salah.mp3"></audio>
+
+<script>
+const quiz = [
+{q:"What number is this? 👉 1",a:["one","two","three"],k:"one"},
+{q:"What number is this? 👉 2",a:["four","two","five"],k:"two"},
+{q:"What number is this? 👉 3",a:["three","six","one"],k:"three"},
+{q:"What number is this? 👉 4",a:["four","five","two"],k:"four"},
+{q:"What number is this? 👉 5",a:["six","five","seven"],k:"five"},
+{q:"What comes after five?",a:["six","four","seven"],k:"six"},
+{q:"What comes after six?",a:["five","seven","eight"],k:"seven"},
+{q:"What comes before eight?",a:["seven","six","nine"],k:"seven"},
+{q:"What comes before ten?",a:["nine","eight","eleven"],k:"nine"},
+{q:"Which number is bigger?",a:["3","7","2"],k:"7"},
+{q:"Which number is smaller?",a:["5","1","4"],k:"1"},
+{q:"Two plus one is …",a:["two","three","four"],k:"three"},
+{q:"Two plus two is …",a:["four","five","three"],k:"four"},
+{q:"Three plus one is …",a:["four","five","six"],k:"four"},
+{q:"Five minus one is …",a:["four","three","five"],k:"four"},
+{q:"Six minus two is …",a:["four","five","three"],k:"four"},
+{q:"Seven minus one is …",a:["six","five","seven"],k:"six"},
+{q:"Eight minus two is …",a:["six","five","seven"],k:"six"},
+{q:"Nine minus one is …",a:["eight","seven","nine"],k:"eight"},
+{q:"Ten minus two is …",a:["seven","eight","nine"],k:"eight"},
+{q:"Count the stars ⭐⭐⭐",a:["two","three","four"],k:"three"},
+{q:"Count the apples 🍎🍎🍎🍎",a:["three","four","five"],k:"four"},
+{q:"How many balls? ⚽⚽",a:["one","two","three"],k:"two"},
+{q:"How many books? 📘📘📘📘📘",a:["four","five","six"],k:"five"},
+{q:"What number is missing? 1, 2, __, 4",a:["3","5","6"],k:"3"},
+{q:"What number is missing? 5, 6, __, 8",a:["6","7","9"],k:"7"},
+{q:"What number is missing? 7, __, 9",a:["6","8","10"],k:"8"},
+{q:"Which is the biggest?",a:["8","10","6"],k:"10"},
+{q:"Which is the smallest?",a:["2","5","9"],k:"2"},
+{q:"Ten plus zero is …",a:["ten","nine","eleven"],k:"ten"}
+];
+
+let index=0,score=0,time=1800,timer;
+let answers=[];
+
+function goldRain(){
+  for(let i=0;i<15;i++){
+    let c=document.createElement("div");
+    c.className="coin";
+    c.innerHTML="💰";
+    c.style.left=Math.random()*100+"vw";
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),2000);
+  }
+}
+
+function start(){
+  if(index>=quiz.length){finish();return;}
+  number.innerText=`Question ${index+1} of ${quiz.length}`;
+  question.innerText=quiz[index].q;
+  options.innerHTML="";
+  quiz[index].a.forEach(o=>{
+    let b=document.createElement("button");
+    b.innerText=o;
+    b.className="option";
+    b.onclick=()=>check(b,o);
+    options.appendChild(b);
+  });
+}
+
+function check(btn,ans){
+  answers.push({q:quiz[index].q,y:ans,k:quiz[index].k});
+  if(ans===quiz[index].k){
+    score++;btn.className="correct";
+    clap.play();goldRain();
+  }else{
+    btn.className="wrong";
+    wrongSound.play();
+    if(navigator.vibrate)navigator.vibrate([200,100,200]);
+  }
+  setTimeout(()=>{index++;start();},1000);
+}
+
+timer=setInterval(()=>{
+  time--;
+  let m=Math.floor(time/60);
+  let s=time%60;if(s<10)s="0"+s;
+  time<=0?finish():timeEl.innerText=m+":"+s;
+},1000);
+
+function finish(){
+  clearInterval(timer);
+  number.innerHTML="";
+  question.innerHTML="";
+  options.innerHTML="";
+  let text=`🏆 Score: ${score}/${quiz.length}<br><hr><b>Answer Key:</b><br>`;
+  answers.forEach((a,i)=>{
+    text+=`${i+1}. ${a.q}<br>✔ ${a.k}<br><br>`;
+  });
+  result.innerHTML=text;
+}
+
+start();
+</script>
+
+</body>
+</html>
